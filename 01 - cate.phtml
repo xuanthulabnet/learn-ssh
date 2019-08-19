@@ -1,0 +1,81 @@
+<?
+use XT\Core\System\KeyView;
+use XT\Core\Common\Common;
+/**
+ * @var PhpRenderer $this
+ */
+$index_article = Common::sendevent(KeyView::DYNAMIC_LOAD_PHTML,
+    ['file'=>'module/Application/view/dynamiccontent/SSH.php', 'view'=>$this])->last();
+
+$nav = $index_article->renderlist();
+
+Common::eventValue(KeyView::startNav(), $nav);
+?>
+
+     <h2 class="display-4 font30 text-danger">Giao thức Secure Shell (SSH)</h2>
+    <p><strong>SSH</strong> là một giao thức mạng được mã hóa bảo mật, nó tạo ra kết nối bảo mật
+        <small>(tạo ra một đường hầm tách biệt với với cách dịch vụ khác để duy trì kết nối riêng tư giữa máy trạm và máy chủ)</small>
+        trên một mạng lưới không bảo mật.
+        SSH cũng được hiểu như ứng dụng dùng để kết nối đăng nhập vào một hệ thống máy tính bởi người dùng.</p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-01.png" alt="ssh">
+
+    <p>Giao thức <strong>SSH</strong> được dùng ở rất nhiều nền tảng từ Linux, macOs, Windows với các mục đích như:</p>
+    <ul>
+        <li>Đăng nhập vào shell của máy tính từ xa (máy chủ)</li>
+        <li>Thi hành lệnh trên máy kết nối</li>
+        <li>Thiết lập tự động đăng nhập vào server</li>
+        <li>Truyền tải file an toàn</li>
+        <li>Gắn một thư mục ở máy từ xa (máy chủ) vào máy client</li>
+        <li>...</li>
+    </ul>
+
+    <h2 class="display-4 font30 text-danger">Điều kiện và cách thức sử dụng SSH</h2>
+    <p>Để sử dụng kết nối SSH, bạn phải được cung cấp một dịch vụ SSH từ máy Remote (từ xa, server), sau đó ở máy Client
+    (local) sử dụng các chương trình SSH Client để kết nối đến máy remote và thực hiện các tác vụ tùy nhu cầu.</p>
+
+    <ul class="list-group">
+        <li class="list-group-item"><strong class="text-success">Máy chủ dịch vụ SSH</strong>
+            là máy tại đó chạy một SSH Server, nó cung cập dịch vụ kết nối SSH đến nó, thông qua xác thực tài khoản
+            <code>user/pass</code> hoặc xác thực bằng <code>public/private key</code>
+            <ul>
+                <li>Nếu đã được cung cấp tài khoản kết nối đến SSH Server, bạn chỉ việc sử dụng các Client SSH phù hợp
+                để kết nối</li>
+                <li>Nếu muốn cài đặt và cấu hình một máy chủ SSH Server thì có thể sử dụng
+                    <a href="https://www.openssh.com/" target="_blank">OpenSSH</a> cho các máy chủ <strong>Linux</strong>
+                    hoặc phiên bản cho <strong>Windows</strong> tại
+                    <a href="https://github.com/PowerShell/Win32-OpenSSH/releases" target="_blank">
+                        OpenSSH - Windows
+                    </a>
+                </li>
+            </ul>
+
+
+        <li class="list-group-item">
+            <strong class="text-success">SSH Client</strong> là các chương trình chạy ở máy trạm (local) có chức năng
+            kết nối đến SSH Server. Bản thân OpenSSH cũng là Client để kết nối - nên ở máy trạm ta sẽ tập trung vào
+            sử dụng <code>OpenSSH Client</code> để thực hành, ngoài ra còn nhiều SSH Client khác, như <strong>Putty</strong>
+            chạy trên Windows. Khi kết nối có thể tùy cấu hình từ OpenSSH Server có thể xác thực bằng cách nhập
+            username/password hoặc bằng cặp file public/private key.</li>
+    </ul>
+
+    <p><small>Đối với Windows cũng đã hỗ trợ OpenSSH như là một gói phân phối cùng hệ điều hành, thông tin của
+            <a href="https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview"
+               target="_blank">Microsoft nó tích hợp sẵn trong Windows</a> (từ năm 2018 - hoặc có thể cài thêm),
+        điều này giúp cho việc sử dụng ngay SSH trên Windows 10, hoặc Server 2018 về sau mà không phải cài đặt thêm gì</small></p>
+    <h2 class="display-4 font30 text-danger">Sử dụng SSH</h2>
+    <p>Dưới đây là các chuyên đề về SSH mà bạn có thể đọc:</p>
+    <div class="list-group my-2">
+        <a href="" class="list-group-item list-group-item-action">
+            <span class="badge badge-danger">01</span> Cài đặt và cấu  hình cơ bản <strong>OpenSSH Server</strong> trên <strong>Linux, Windows</strong>
+        </a>
+        <a href="" class="list-group-item list-group-item-action">
+            <span class="badge badge-danger">02</span> Cài đặt <strong>OpenSSH Client</strong> trên <strong>Linux, Windows</strong>
+            và thực hiện kết nối đến SSH Server
+        </a>
+        <a href="" class="list-group-item list-group-item-action">
+            <span class="badge badge-danger">03</span> Tạo SSH Public/Private key trong SSH và sử dụng cơ chế xác thự Public/Private key</strong>
+        </a>
+        <a href="" class="list-group-item list-group-item-action">
+            <span class="badge badge-danger">04</span> Sử dụng Putty, phần mềm SSH Client trên Windows</strong>
+        </a>
+    </div>
