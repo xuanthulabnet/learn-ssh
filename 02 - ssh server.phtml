@@ -1,0 +1,166 @@
+<?
+use XT\Core\System\KeyView;
+use XT\Core\Common\Common;
+/**
+ * @var PhpRenderer $this
+ */
+$index_article = Common::sendevent(KeyView::DYNAMIC_LOAD_PHTML,
+    ['file'=>'module/Application/view/dynamiccontent/SSH.php', 'view'=>$this])->last();
+
+$nav = $index_article->renderlist();
+
+Common::eventValue(KeyView::startNav(), $nav);
+
+
+$index_article = [
+    ['sshlinux', '<strong>SSH Server Linux</strong>'],
+    ['sshwindows', '<strong>SSH Server Windows</strong>'],
+    ['sshdconfig', '<strong>Cấu hình SSH Server</strong>'],
+];
+
+
+?>
+    <?=Common::createULlink($index_article, '#', 'class="list-group list-group-flush"', 'class="list-group-item p-0"'); ?>
+
+    <a id="<?=$index_article[0][0]?>" name="<?=$index_article[0][0]?>"></a>
+
+     <h2 class="display-4 font30 text-danger">Cài đặt OpenSSH Server trên Linux</h2>
+     <p><strong>OpenSSH</strong> là phần mềm nguồn mở, nó cho phép tạo dịch vụ SSH Server cũng cung cấp
+     các chương trình SSH CLient</p>
+     <p><strong>Cài đặt OpenSSH Server trên CentOS/RHEL 7</strong></p>
+     <p>Thự hiện các lệnh sau để cài đặt:</p>
+     <pre class="prettyprint">yum install openssh openssh-server openssh-clients openssl-libs -y</pre>
+
+    <p><strong>Cài đặt OpenSSH Server trên Ubuntu</strong></p>
+    <p>Thự hiện các lệnh sau để cài đặt:</p>
+    <pre class="prettyprint">sudo apt-get install openssh-server openssh-client</pre>
+
+
+     <p>Chạy dịch vụ SSH Server, thiết lập chạy ngay khi khởi động</p>
+     <pre class="prettyprint">systemctl start sshd
+systemctl enable sshd</pre>
+     <p>Mặc định SSH dùng cổng <code>22</code> nên bạn phải mở cổng này</p>
+     <pre class="prettyprint">firewall-cmd --add-port=22/tcp --permanent
+firewall-cmd --reload</pre>
+     <p><small>Nếu sau này bạn cấu hình đổi cổng SSH mặc định, bạn cần mở cổng đó (thay 22 bằng cổng của bạn)</small></p>
+     <p><strong class="text-danger">File cấu hình của OpenSSH Server</strong> tại <code>/etc/ssh/sshd_config</code>, bạn có thể mở và chỉnh sửa
+     nó theo nhu cầu
+         <small>(có thể dùng <a href="/soan-thao-file-trong-linux-voi-vim-va-nano.html">Vim, Nano</a> để soạn thảo)</small>.
+     Sau khi sửa Config thì cần khởi động lại SSH Server.
+     </p>
+     <pre class="prettyprint">systemctl restart sshd</pre>
+     <p>Kiểm tra trạng thái SSH Server</p>
+     <pre class="prettyprint">systemctl status sshd</pre>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-06.png" alt="SSH">
+     <p>Như vậy đã có SSH Server, hãy xem phần cấu hình để biết cầu hình cơ bản.</p>
+
+    <a id="<?=$index_article[1][0]?>" name="<?=$index_article[1][0]?>"></a>
+     <h2 class="display-4 font30 text-danger">Cài đặt OpenSSH Server trên Windows</h2>
+     <p>Phần này hướng dẫn cài đặt từng bước - thủ công, để có SSH Server trên Windows
+         <small class="text-secondary">(<i>Để áp dụng được cho nhiều phiên bản Windows (Desktop, Server - từ 7 đến 10, 2008, 2019  ...,
+                 vì các phiên bản mới của Windows cung cấp sẵn gói OpenSSH nên có thể cài đặt bằng gõ vài lệnh PowserShell,
+                 cái này sẽ nói ở một phần khác</i>)</small></p>
+     <p><strong class="badge badge-danger">Bước 1</strong> Tải về OpenSSH - vào đường link
+         <a href="https://github.com/PowerShell/Win32-OpenSSH/releases">Win OpenSSH</a>, chọn đúng phiên bản phù hợp với
+     hệ thống của bạn <small>(chọn <strong>OpenSSH-Win32.zip</strong> hay <strong>OpenSSH-Win64.zip</strong> theo kiến trúc
+             Windows của bạn)</small>, File tải về giải nén vào thư mục muốn cài đặt, ví dụ chọn giải nén vào
+     thư mục <strong>C:\OpenSSH</strong></p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-07.png" alt="SSH Windows">
+    <p><strong class="badge badge-danger">Bước 2</strong> Chạy <code>PowserShell</code> hoặc (<code>Cmd</code>)
+    với quyền Administrator <small>(Nhấn phải chuột vào biểu tượng PowerShell hoặc Cmd và chọn
+            <strong>Run as Administrator ...</strong>)</small>, sau  đó chuyển đến thư mục <code>C:\OpenSSH</code>
+    bằng lệnh</p>
+    <pre class="prettyprint">cd C:\OpenSSH</pre>
+    <p>Đang ở thư mục <code>C:\OpenSSH</code>, gõ lệnh sau để cài đặt dịch vụ OpenSSH Server vào Windows</p>
+    <pre class="prettyprint">powershell -ExecutionPolicy ByPass -File install-sshd.ps1</pre>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-02.png" alt="SSH Windows">
+    <p><strong class="badge badge-danger">Bước 3</strong> Gõ <code>services.msc</code> vào Menu Start, chạy
+    và mở <strong>Windows Services Manager</strong>, tìm đến <strong>OpenSSH SSH Server</strong>
+    và dịch vụ <strong>OpenSSH Authetication Agent</strong>. Thiết lập cả hai dịch vụ có <code>Startup  type</code>
+    là <code>Automatic</code> <small>(khởi chạy cùng  hệ  thống)</small>, cuối cùng hãy chạy 2 dịch vụ đó <small>
+            (nhấn phải chuột vào nó, chọn <strong class="text-danger">start</strong>)
+        </small></p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-03.png" alt="SSH Windows">
+    <p><strong class="badge badge-danger">Bước 4</strong> Mở cổng <code>22</code>, vì SSH Server làm việc trên cổng
+    22 nên cần thiết lập <code>Firewall</code> cho phép kết nối đến cổng này. Để tự động tạo rule cho
+        phép kết nối đến cổng <code>22</code>
+       trong Windows Firewall, bạn có thể tải file .bat sau về
+        <a href="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/openport22.bat" target="_blank">
+            Open Port 23
+        </a>,
+    lưu vào đĩa, ví dụ lưu tại <code>C:\OpenSSH\openport22.bat</code>, sau đó chạy file bat này với quyền Administrator.</p>
+
+    <img style="max-width: 700px" src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-04.png" alt="SSH Windows">
+    <p>Sau khi chạy, nó sẽ tạo một <code>Rule</code> có tên <code>Open Port 22</code> trong Windows Firewall là thành công</p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-05.png" alt="SSH Windows">
+    <hr>
+    <p><strong class="text-danger">File cấu hình của OpenSSH Server</strong> tại <code>C:\OpenSSH\sshd_config_default</code>,
+    nếu có chỉnh sửa / thiết lập từ file này, bạn cần khở động lại dịch vụ SSH từ <strong>Service Manager</strong>
+    như trên</p>
+    <a id="<?=$index_article[2][0]?>" name="<?=$index_article[2][0]?>"></a>
+    <h2 class="display-4 font30 text-danger">Cấu hình dịch vụ OpenSSH Server</h2>
+    <p>Các cấu hình cho dịch vụ SSH trên Server giống nhau giữa Windows và Linux, các thiết lập thực hiện bằng
+    việc chỉnh sửa file cấu hình, sau khi cập nhật thì khởi động lại dịch vụ SSH. Vị trí file cấu hình tại:</p>
+    <ul>
+        <li><code>/etc/ssh/sshd_config</code> trên Linux</li>
+        <li><code>C:\OpenSSH\sshd_config_default</code> trên Windows <small>(Theo đường dẫn thư mục bạn cài OpenSSH)</small></li>
+    </ul>
+    <p>Dưới đây là một số cấu hình <small>(trong các file cấu hình một số thiết lập mặc định để ở chế độ <code>commment</code>
+             - có ký tự # phía trước - nếu  bạn thiết lập riêng thì xóa <code>#</code>)</small></p>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <p><strong class="text-success">1) Đổi cổng mặc định</strong> nếu muốn đổi cổng kết nối SSH, ví dụ đổi sang cổng <code>2233</code></p>
+            <pre class="prettyprint">Port 1235</pre>
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">2) Chỉ cho phép một số User kết nối SSH</strong> nếu chỉ muốn một số User được chỉ ra được phép kết nối
+            SSH, ví dụ chỉ cho phép user1, user2 thì thêm vào</p>
+            <pre class="prettyprint">AllowUsers abcuser xtlab</pre>
+            <p><small><strong class="text-danger">CHÚ Ý: </strong></small> nếu không có dòng này, mặc định tất các các user
+            được kết nối. <br><code>User</code> là tài khoản của hệ thống (ví dụ <code>root</code> trên Linux,
+                <code>Administrator</code> trên Windows, những User này do bạn tạo -  như trên Linux là lệnh <code>useradd</code>,
+                trên  Windows thêm bằng trình <strong>User Accounts</strong> trong Control Panel)</p>
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">3) Cấm một số User</strong> ngược lại với AllowUsers, muốn cấm User nào,
+                ví dụ user3, user4 thì thêm vào</p>
+            <pre class="prettyprint">DenyUsers abcuser xtlab</pre>
+
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">4) Bật chế độ xác thực SSH Key</strong> </p>
+            <pre class="prettyprint">PubkeyAuthentication yes</pre>
+            <p>Chế độ xác thực này - tìm hiểu cụ  thể ở phần <a href="" target="_blank">Xác thực SSH bằng Public/Private key</a></p>
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">5) Chỉ ra đường dẫn lưu Public key</strong> ví sụ lưu tại
+                <code>.ssh/authorized_keys</code> (tìm hiểu sau)</p>
+            <pre class="prettyprint">AuthorizedKeysFile .ssh/authorized_keys</pre>
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">6) Tắt xác thực bằng Password</strong> nếu muốn tắt chế độ cho phép nhập Password
+            để kết nối SSH thì thêm vào</p>
+            <pre class="prettyprint">PasswordAuthentication no</pre>
+            <p>Bạn nhớ là chế độ này <code>on</code> mặc định, bạn chỉ nên tắt khi đã có thể kết nối bằng Private Key</p>
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">7) Không cho xác thực bằng password rỗng</strong> </p>
+            <pre class="prettyprint">PermitEmptyPasswords no</pre>
+        </li>
+        <li class="list-group-item">
+            <p><strong class="text-success">8) Không cho tài khoản root đăng nhập</strong> </p>
+            <pre class="prettyprint">PermitRootLogin no</pre>
+        </li>
+    </ul>
+
+    <p class="font20">
+        Vậy là đã có dịch vụ SSH chạy ở Server - với cấu hình cơ bản,  giờ đến lúc từ máy trạm kết nối vào Shell của Server
+        bằng SSH tại <a href="" target="_blank">Kết nối vào Server bằng SSH</a>
+    </p>
+
+
+
+
+<?
+echo Common::createBottomIndex($index_article);
+?>
