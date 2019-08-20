@@ -1,0 +1,49 @@
+<?
+use XT\Core\System\KeyView;
+use XT\Core\Common\Common;
+/**
+ * @var PhpRenderer $this
+ */
+$index_article = Common::sendevent(KeyView::DYNAMIC_LOAD_PHTML,
+    ['file'=>'module/Application/view/dynamiccontent/SSH.php', 'view'=>$this])->last();
+
+$nav = $index_article->renderlist();
+
+Common::eventValue(KeyView::startNav(), $nav);
+
+
+$index_article = [
+    ['putty', '<strong>Putty kết nối SSH</strong>'],
+    ['puttykey', '<strong>Tạo Private / Publich SSH  Key</strong>'],
+];
+
+
+?>
+
+<p>Trên Windows ngoài sử dụng OpenSSH Client để thực hiện các kết nối đến SSH Server
+    <i><small>(nên  sử dụng  cách này)</small></i>, thì cũng có thể sử dụng một ứng dụng miễn phí là Putty - nó
+khá lâu đời</p>
+<a id="<?=$index_article[0][0]?>" name="<?=$index_article[0][0]?>"></a>
+<h2 class="display-4 font35 text-danger">Kết nối từ máy trạm Windows tới Server bằng Putty</h2>
+<p>Trên máy Windows, sau khi cài OpenSSH thì kết nối đến SSH Server tương tự cách lệnh Linux. Tuy nhiên với Windows có thể dùng ứng dụng Putty. Tải về tại: <a href="https://www.putty.org/">Putty</a>, cài đặt xong chạy Putty nó có giao diện như sau:</p>
+<img src="https://xuanthulab.net/photo/putty-4295.png" style="width: 420px">
+<p>Bạn điền thông số vào gồm: điện IP (hoặc tên miền), cổng kết nối. Có thể nhập tên cấu hình ở mục <code>Saved Sessions</code> rồi bấm Save lại để lần sau muốn kết nối chỉ việc chọn tên cấu hình và bấm Load, tránh khỏi thiết lập thông số kết nối từ đầu.</p>
+<p>Cấu hình xong bấm vào <code>Open</code>, nhập user và password để thực hiện kết nối. Kết quả là có một giao diện dòng lệnh làm việc trực tiếp với Server.</p>
+<img src="https://xuanthulab.net/photo/putty-4296.png" alt="putty" style="max-width: 500px">
+
+<p>Chú ý khi bạn kết nối đến Server Windows bằng Putty như trên, nếu có dòng thông báo lỗi:</p>
+<pre class="prettyprint">Server protocol violation: unexpected SSH2_MSG_UNIMPLEMENTED</pre>
+<p>Thì cấu hình Putty như sau để bỏ lỗi: Từ cửa sổ cấu hình Putty chọn <code>Connection > SSH > Kex</code>, ở bên phải cửa số thấy có khu vực <code>Althorithm selection policy</code>, trong danh sách đó hãy bấm chọn <code>Diffe-Hellman group exchange</code> đang ở đầu danh sách, sau đó bấm vào nút Down để dịch nó xuống vị trí thứ 3. Thực hiện kết nối lại sẽ hết lỗi.</p>
+
+
+<h2 class="display-4 font35 text-danger">Sử dụng SSH Key với Putty</h2>
+<p>File <strong>Private Key</strong> (id_rsa) bạn lưu vào máy trạm có thể dùng được với nhiều ứng dụng cần kết nối SSH, tuy nhiên với Putty vì có sự không tương thích giữa OpenSSH key và Putty key nên trước khi sử dụng cần chuyển đổi cho tương thích với Putty.</p>
+<p><strong class="badge badge-danger">1</strong> Tải về PuttyGen tại <a  href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html" target="_blank">PuttyGen</a>, sau đó chạy file tải về nó có giao diện dạng:</p>
+<img src="https://xuanthulab.net/photo/putty-4298.png" style="max-width: 400px" alt="putty">
+<p><strong class="badge badge-danger">2</strong> Giả sử file Private Key <code>id_rsa</code> bạn tải về lưu tại <code>C:\MySSH\id_rsa</code>, ở giao diện trên bạn bấm vào Load, chỉ đến file id_rsa. Sau đó bấm vào <code>Save Private Key</code>, lưu nó thành file mới ví dụ: <code>C:\MySSH\id_rsa.ppk</code></p>
+<p><strong class="badge badge-danger">3</strong> Thực hiện kết nối Putty. Chạy Putty thiết lập IP, cổng kết nối như bình thường. Tiếp theo bấm vào mục <code>Connection > SSH > Auth</code>, nhìn bên phải bấm vào <code>Browse ...</code>, chọn đến file Private Key:  <code>C:\MySSH\id_rsa.ppk</code>. Cuối cùng là Open để kết nối mà không dùng đến Password</p>
+
+
+<?
+echo Common::createBottomIndex($index_article);
+?>

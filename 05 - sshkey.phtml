@@ -1,0 +1,147 @@
+<?
+use XT\Core\System\KeyView;
+use XT\Core\Common\Common;
+/**
+ * @var PhpRenderer $this
+ */
+$index_article = Common::sendevent(KeyView::DYNAMIC_LOAD_PHTML,
+    ['file'=>'module/Application/view/dynamiccontent/SSH.php', 'view'=>$this])->last();
+
+$nav = $index_article->renderlist();
+
+Common::eventValue(KeyView::startNav(), $nav);
+
+
+$index_article = [
+    ['sshkey', '<strong>Cơ chế xác thực bằng SSH Key</strong>'],
+    ['createssh', '<strong>Tạo Private / Publich SSH  Key</strong>'],
+    ['PublicPrivate', '<strong>Xác thực bằng Public/Private key</strong>'],
+];
+
+
+?>
+
+<p>Phần này nói về xác thực bằng SSH Key, cách sử dụng chúng để nhanh chóng tạo kết nối an toàn, tiện dụng.</p>
+
+<?=Common::createULlink($index_article, '#', 'class="list-group list-group-flush"', 'class="list-group-item p-0"'); ?>
+
+<a id="<?=$index_article[0][0]?>" name="<?=$index_article[0][0]?>"></a>
+<h2 class="display-4 font30 text-danger">Cơ chế xác thực bằng SSH Key</h2>
+<p>Ngoài cơ chế xác thức bằng cách nhập mật khẩu như trên còn có cơ chế sử dụng SSH Key để xác thực.
+    Để tạo nên xác thực này cần có hai file, một file lưu <code>Private Key</code>
+    và môt lưu <code>Public key</code></p>
+<ul>
+    <li><strong class="text-danger">Public Key</strong> khóa chung, là một file text - nó lại lưu ở phía Server SSH,
+        nó dùng để khi Client gửi Private Key <small>(file lưu ở Client)</small> lên để xác thực thì kiểm tra phù hợp giữa
+        Private Key và Public Key này. Nếu phù hợp thì cho kết nối.</li>
+
+    <li><strong class="text-danger">Private Key</strong> khóa riêng, là một file text bên trong nó chứa mã riêng
+        để xác thực <small>(xác thực là kiểm tra sự phù hợp của Private Key và Public Key)</small>.
+        Máy khách kết nối với máy chủ phải chỉ ra file này khi kết nối SSH thay vì nhập mật khẩu.
+        <span class="text-danger">Hãy lưu file Private key cận thận, bất kỳ ai có file này
+                có thể thực hiện kết nối đến máy chủ của bạn</span></li>
+</ul>
+
+
+<a id="<?=$index_article[1][0]?>" name="<?=$index_article[1][0]?>"></a>
+
+<h2 class="display-4 font30 text-danger">Tạo SSH Key <small>(Public/Private)</small></h2>
+<p>Có nhiều cách để có được SSH Key <small>(cặp <strong>Private Key</strong> và <strong>Public Key</strong>)</small>.
+    Miễn là sau khi có căp file này thì file Public Key lưu ở vị trí phù hợp tại Server (xem trên),
+    còn Private key dùng ở máy khách để kết nối.
+    Dưới đây là một cách có được cặp file này (dùng lệnh <code>ssh-keygen</code> của OpenSSH chạy
+    ở Server hoặc Client đều được):</p>
+
+
+<p>Mở <code>terminate</code> (trên Linux, macOS hoặc <code>cmd</code> trên Windows) rồi gõ dòng lệnh:</p>
+<pre class="prettyprint">ssh-keygen -t rsa</pre>
+<p>Đầu tiên nó hỏi nhập thư mục sẽ lưu key sinh ra, hãy nhập thư mục - tên file muốn lưu hoặc
+    nhấn <kbd>Enter</kbd> để sử dụng đường dẫn nó gợi ý
+    <small>(<code>~/.ssh/id_rsa</code>, ví dụ trên máy tôi <code>/Users/xuanthulab/.ssh/id_rsa</code>)</small>.
+    Sau đó nó yêu cầu nhập <code>passphase</code>, nhấn <kbd>Enter</kbd> để rỗng.
+    Cuối cùng nó sinh ra hai file key có tên <code>id_rsa</code> và <code>id_rsa.pub</code>
+    ở thư mục đã nhập  trên.
+</p>
+<img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-17.png" alt="">
+
+<p>Kết quả lệnh trên bạn đã có:</p>
+<ul>
+    <li><strong class="text-danger">Private Key</strong> chứa trong file
+        <code>~/.ssh/id_rsa</code>, hãy lưu lại cẩn thận,
+        nó được dùng để SSH client (máy local) kết nối đến Server.
+        Mở file này ra, đoạn mã Private Key có dạng
+        <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-19.png" alt="">
+        <p>Bạn có thể lưu  nội dung đoạn mã này để sau này sử  dụng.</p>
+
+    </li>
+    <li><strong class="text-danger">Public Key</strong> chứa trong file
+        <code>~/.ssh/id_rsa.pub</code>, hãy copy nội dung bên trong file - giữ cận thận,
+        Nó được lưu (dùng) ở máy Server để xác thực khi có Private key gửi đến.
+        Nếu mở file này ra, thì nội dung mã Public key nhìn thấy có dạng:
+        <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-18.png" alt="">
+        <p>Bạn có thể lưu mã này lại để sau này sử dụng</p>
+    </li>
+</ul>
+
+<strong>Lưu ý trên Server Windows (hoặc Windows Destop)</strong>
+<p>Cách phát sinh SSH Key giống hệt trên Linux,
+    các file kết quả lưu tại <code>%homepath%\.ssh\</code>.
+    Với <code>%homepath%</code> là thư mục gốc của User,
+    ví dụ như bạn đang đăng nhập với User là
+    <code>Administrator</code> thì <code>%homepath%</code> là
+    <code>C:\Users\Administrator\</code></p>
+<a id="<?=$index_article[2][0]?>" name="<?=$index_article[2][0]?>"></a>
+<h2 class="display-4 font30 text-danger">Xác thực bằng SSH Key</h2>
+<p>Khi SSH Server bật chế độ cho phép xác sự bằng SSH Key, thì tại Server cấu hình để nó nhận biết có Public Key lưu
+ở file nào đó trên Server. Sau đó, ở máy Client (local) khi kết nối sẽ gửi Private Key lên, nếu nó kiểm tra
+thấy phù hợp giữa Public Key và Private Key thì cho kết nối.</p>
+<h3 class="text-primary">Cấu hình Public key cho SSH Server</h3>
+<p>Mở file config của SSH Service ra
+<small>(<code>/etc/ssh/sshd_config</code> trên
+    Windows <code>C:\ProgramData\sshd_config</code> - xem phần
+    <a href="http://xuanthulab.net.vn/cai-dat-dich-vu-ssh-tren-server-linux-va-windows.html#sshdconfig" target="_blank">
+        Câu hình dịch vụ SSH Server
+    </a>)</small>, hãy đảm bảo nó có dòng cấu hình:</p>
+<pre class="prettyprint">PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys</pre>
+    <p>Trong đó <code>.ssh/authorized_keys</code> cho biết, tìm Public key tại file <code>.ssh/authorized_keys</code>
+        của User. Có nghĩa là Public key sẽ phải có cho từng User kết nối, và nó lưu dưới thư mục của User.</p>
+    <p>Ví dụ, nếu user đăng nhập có tên là <code>abc</code> thì Public key phải lưu ở
+    <code>/home/abc/.ssh/authorized_keys</code> (Linux) hay tại <code>C:\Users\abc\.ssh\authorized_keys</code>
+        đối với Windows. Biết được đường dẫn như vậy, bạn cần copy file <code>id_rsa.pub</code>
+        <small>(chứa Public key)</small> sinh ra ở trên vào đúng đường dẫn này
+        (<small>đổi tên <code>id_rsa.pub</code> thành <code>authorized_keys</code></small>).
+        Hoặc tạo file <code>authorized_keys</code> rồi paste nội dung Public key vào.</p>
+    <p>Ví dụ, Linux Server có IP <code>192.168.1.52</code>, user để là <code>xuanthulab</code>,
+    thì file lưu Public Key phải để tại là ở <code>/home/xuanthulab/.ssh/authorized_keys</code></p>
+    <p><strong>Lưu ý</strong> - Lỗi hay gặp không kết nối được SSH KEY: thường là lưu file public key ở Server ở các
+        thư mục không được chmod phù hợp. Nếu user có tên là abc, thì chmod phù hợp là:</p>
+    <pre class="prettyprint lang-sh">
+/home/abc                               700
+/home/abc/.ssh                          700
+/home/abc/.ssh/authorized_keys          600</pre>
+
+<h3 class="text-primary">Cấu hình Private key cho SSH Client</h3>
+<p>Sau khi có SSH Server cho phép xác thực bằng SSH Key, thì ở Client phải sử dụng <code>Private key</code>,
+có được khi sinh ra cùng Public key ở trên.</p>
+<p>Như phần <a target="_blank"
+               href="http://xuanthulab.net.vn/ket-noi-ssh-den-server-co-ban-voi-openssh-client.html#usingSSHClientConfig">
+        File cấu hình config cho SSH Client
+    </a>, mở (tạo mới nếu chưa có) file config ra và thiết lập có xác thực SSH Key đến host tương ứng</p>
+<p>Ví dụ, kết nối đến <code>192.168.1.52</code> thì dùng Private key lưu tại
+    <code>/Users/xuanthulab/.ssh/id_rsa</code>, thì file config đó như sau:</p>
+<pre class="prettyprint lang-sh">
+Host 192.168.1.52
+    PreferredAuthentications publickey
+    IdentityFile "/Users/xuanthulab/.ssh/id_rsa"
+</pre>
+    <p>Do public key ở <code>192.168.1.52</code> phù hợp với private key ở client (/Users/xuanthulab/.ssh/id_rsa),
+    nên khi kết nối nó sẽ xác thực ngay bằng key mà không cần nhập password nữa</p>
+<pre class="prettyprint">ssh xuanthulab@192.168.1.52</pre>
+<img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-20.png" alt="">
+<p>Cũng lưu ý là Private key được chmod phù hợp (600)</p>
+
+
+<?
+echo Common::createBottomIndex($index_article);
+?>
