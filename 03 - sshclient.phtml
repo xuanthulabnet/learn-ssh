@@ -1,0 +1,191 @@
+<?
+use XT\Core\System\KeyView;
+use XT\Core\Common\Common;
+/**
+ * @var PhpRenderer $this
+ */
+$index_article = Common::sendevent(KeyView::DYNAMIC_LOAD_PHTML,
+    ['file'=>'module/Application/view/dynamiccontent/SSH.php', 'view'=>$this])->last();
+
+$nav = $index_article->renderlist();
+
+Common::eventValue(KeyView::startNav(), $nav);
+
+
+$index_article = [
+    ['installSSHClient', '<strong>Cài đặt OpenSSH Client</strong>'],
+    ['usingSSHClient', '<strong>Sử dụng SSH Client cơ bản</strong>'],
+    ['usingSSHClientConnect', '<i>Kết nối SSH đến Server</i>'],
+    ['usingSSHClientConfig', '<i>File cấu hình ssh_config</i>'],
+];
+
+
+?>
+
+    <p>Ở đây, bạn được cung cấp một tài khoản máy Remote (server), giả sử tài khoản đó có tên (<code>user</code>)
+        là <code>username</code>, có password là <code>yourpassword</code> - máy server này có địa chỉ IP hoặc
+        domain trỏ đến server là <code>remoteserver</code>. Với thông tin như vậy, làm  sao để kết nối đến Shell của Server!
+        Phần này sẽ hướng dẫn cơ bản sử dụng    OpenSSH Client để kết nối.</p>
+
+    <?=Common::createULlink($index_article, '#', 'class="list-group list-group-flush"', 'class="list-group-item p-0"'); ?>
+
+    <a id="<?=$index_article[0][0]?>" name="<?=$index_article[0][0]?>"></a>
+    <h2 class="display-4 font30 text-danger">Cài đặt OpenSSH Client</h2>
+    <p>Kiểm tra: Mở <code>terminal</code> (trên Windows dùng <code>cmd</code> hoặc <code>PowerShell</code>) gõ lệnh:</p>
+    <pre class="prettyprint lang-sh">ssh -V</pre>
+    <p>Nếu báo không có lệnh ssh thì bạn cần cài đặt vào.</p>
+    <h3 class="font25 text-primary">Cài đặt OpenSSH trên Windows</h3>
+    <p>Nó cũng chính là gói OpenSSH Server, cài đặt như sau: Tải về OpenSSH - vào đường link
+        <a href="https://github.com/PowerShell/Win32-OpenSSH/releases">Win OpenSSH</a>, chọn đúng phiên bản phù hợp với
+        hệ thống của bạn <small>(chọn <strong>OpenSSH-Win32.zip</strong> hay <strong>OpenSSH-Win64.zip</strong> theo kiến trúc
+            Windows của bạn)</small>, File tải về giải nén vào thư mục muốn cài đặt, ví dụ chọn giải nén vào
+        thư mục <strong>C:\OpenSSH</strong></p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-07.png" alt="SSH Windows">
+    <p>OpenSSH Client đã có ở thư mục <strong>C:\OpenSSH</strong>, để gõ lệnh ssh bất kỳ đầu bạn cần thêm
+    đường dẫn <code>C:\OpenSSH</code> vào biến môi trường PATH của Windows</p>
+    <p>Từ <strong>File Explorer</strong> nhấn phải chuột vào <strong>Computer</strong> (hoặc <strong>This PC</strong>)
+    trên Windows 10, chọn <strong>Properties</strong>, cửa sổ <strong>System</strong> xuất hiện chọn
+    <strong>(1) Advanced System settings</strong>, chọn <strong>(2) Enviroment variables ..</strong>,
+    chọn <strong>(3) Nháy kép vào Path</strong>, <strong>(4) Thêm thư mục C:\OpenSSH</strong> vào cuối</p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-08.png" alt="SSH Windows">
+    <p>Có thể cần khởi động lại máy để có hiệu lực. Mở Powershell hoặc Cmd gõ lệnh kiểm tra</p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-09.png" alt="SSH Windows">
+    <h3 class="font25 text-primary">Cài đặt OpenSSH macOS</h3>
+    <p>Trên macOS thì SSH Client cài đặt sẵn, gõ lệnh sau để kiểm tra <code>ssh -V</code></p>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-10.png" alt="SSH Windows">
+    <h3 class="font25 text-primary">Cài đặt OpenSSH trên Ubuntu</h3>
+    <p>Với Ubuntu Destop, SSH Client cũng có mặc định, nếu không thấy gõ lệnh để cài, cuối cùng là kiểm tra như hình</p>
+    <pre>sudo apt-get install openssh-client</pre>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-11.png" alt="SSH Windows">
+    <a id="<?=$index_article[1][0]?>" name="<?=$index_article[1][0]?>"></a>
+    <h2 class="display-4 font30 text-danger">Sử dụng SSH Client cơ bản</h2>
+    <p>Giờ trên máy của bạn (macOS, Windows, Linux) đều có lệnh <code>ssh</code>, nó là ssh client cơ bản
+    để kết nối đến Server. Giả sử tải khoản SSH máy chủ là <code>testuser</code>,
+        có password là <code>yourpassword</code> - máy server này có địa chỉ IP hoặc
+    domain trỏ đến server là <code>remoteserver</code> (ví dụ 192.168.1.99 hay yourdomain.com).</p>
+
+    <div class="card">
+        <a id="<?=$index_article[2][0]?>" name="<?=$index_article[2][0]?>"></a>
+        <h3 class="card-header bg-primary text-warning font20">Thực hiện kết nối SSH đến Server</h3>
+        <div class="card-body">
+            <pre class="prettyprint">ssh username@remoteserver</pre>
+            <p><code>username@remoteserver</code> nghĩa là tài khoản <code>username</code> tại máy chủ <code>remoteserver</code>.
+                Lệnh này sẽ bắt đầu thực hiện kết nối SSH đến server có địa chỉ <code>remoteserver</code>, mặc định
+            sẽ  dùng cổng <code>22</code>, nó sẽ hỏi password - bạn nhập password vào, nếu thành công - bạn sẽ ở dòng lệnh
+            của máy Server.</p>
+            <p>Ví dụ, máy Windows Remote có dịch vụ SSH, tài khoản testuser, địa chỉ IP 192.168.1.52, để kế nối đến máy này
+            thực hiện lệnh SSH ở client như sau:</p>
+            <pre class="prettyprint">ssh testuser@192.168.1.52</pre>
+            <p>Sau khi nhập lệnh, do lần đầu kết nối SSH đến IP này, nên ssh có hỏi về ECDSA key fingerprint- gõ <code>yes</code>,
+            rồi nhập password theo yêu cầu, như hình dưới</p>
+            <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-12.png" alt="SSH Windows">
+            <p>Sau khi nhập password - kết nối thành công tới dòng lệnh của máy Windows (Remote Server)</p>
+            <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-13.png" alt="SSH Windows">
+            <p>Khi đã kết nối SSH tới Server Windows rồi, có thể gõ <code>powershell.exe</code> để chuyển sử
+            dụng PowerShell, từ đó thực hiện các tác vụ trên Windows.</p>
+            <p>Tương tự, nếu Server là Linux CentOS hay  Ubuntu thì lệnh kết nối ssh như trên sẽ giúp bạn vào thẳng
+            terminal của máy Server - từ đó thi hành các lệnh của Server</p>
+            <hr>
+            <p>Nếu cổng kết nối khác <code>22</code> ví dụ cổng <code>2222</code> thì cho vào tham số <code>-p 2222</code></p>
+            <pre class="prettyprint">ssh -p 2222 username@remoteserver</pre>
+            <p>Ngoài ra để hiện một số thông tin thì cho vào tham số <code>-v</code>, hiện  thị thông tin thật
+            chi tiết quá trình kết nối (giúp gõ rối nếu  lỗi) thì thâm vào tham số <code>-vvv</code>, nếu muốn nén dữ liệu
+            khi truyền qua SSH thì thêm vào tham số <code>-C</code></p>
+            <pre class="prettyprint">ssh -p 2222 -vvv username@remoteserver</pre>
+            <p class="alert alert-danger">Ngoài cách kết nối yêu cầu xác thực bằng cách nhập  <code>password</code>
+            mà SSH Server cung cấp như trên, cách phổ biến - nhanh chóng -  an toàn hơn là dùng cơ chế xác thực
+            Public/Private key - sau khi giới thiệu file cấu hình SSH Client phần sau, chúng ta sẽ tiến
+            hành tạo cặp key Public/Private và dùng cơ chế xác thực  này để kết nối
+                <a href="" target="_blank">Tạo Public/Private SSH Key và xác thực với authorized_keys</a>
+            </p>
+        </div>
+    </div>
+    <div class="card my-2">
+        <a id="<?=$index_article[3][0]?>" name="<?=$index_article[3][0]?>"></a>
+        <h3 class="card-header bg-primary text-warning font20">File cấu hình SSH Client</h3>
+        <div class="card-body">
+            <p><code>ssh</code> <small>(ssh client)</small> khi chạy, thực hiện các kết nối - nó sẽ tìm file cấu hình
+            tại đường dẫn <code>~/.ssh/config</code>, nếu có file này nó dùng file đó thiết lập các thông tin bổ sung kết nối.</p>
+            <p>Trong đường dẫn file trên, <code>~</code> cho biết đó là thư mục của User hiện tại, như vậy
+            mỗi user của máy có thể có file <code>config</code> riêng.</p>
+            <p>Ví dụ:</p>
+            <ul>
+                <li>Trên máy macOS, user có tên <code>abc</code> thì <code>~/.ssh/config</code> có đường dẫn đầy đủ là
+                <code>/Users/abc/.ssh/config</code>, macOS có thể dùng ngày file config <code>/etc/ssh/ssh_config</code></li>
+                <li>Trên Windows, user có tên  <code>abc</code> thì <code>~/.ssh/config</code> có đường dẫn đầy đủ
+                    là <code>C:\Users\abc\.ssh\config</code>
+                </li>
+                <li>Trên Linux (Ubuntu, CentOS), user có tên  <code>abc</code> thì <code>~/.ssh/config</code> có đường dẫn đầy đủ
+                là <code>/home/abc/.ssh/config</code></li>
+            </ul>
+            <p>Như vậy, nếu file config cho user <code>abc</code> trên hệ thống chưa có, thì cần tạo file này, nằm đúng
+            ở đường dẫn như trên.</p>
+            <p><strong>Chú ý:</strong> trên Windows, để tạo được thư mục <code>.ssh</code> thì bạn dùng PowerShell (không
+            dùng Cmd), và gõ lệnh <code>mkdir</code> để tạo thư mục</p>
+            <pre class="prettyprint">mkdir C:\Users\abc\.ssh</pre>
+            <p>Có thư mục <code>.ssh</code> rồi mới tạo file <code>config</code> trong đó.</p>
+            <p>File <code>config</code> có cấu trúc, chia thành từng khối - mỗi khối bắt đầu bằng <code>Host hostname</code>,
+            trong đó hostname tên do bạn đặt, hoặc là IP của Server hoặc domain trỏ đến server. Sau đó đến các cấu hình.
+            Khối này sẽ áp dụng nếu khi lệnh kết nối <code>ssh username@remoteserver</code> có thành phần <code>remoteserver</code>
+            giống với <code>hostname</code></p>
+            <p>Ví dụ - hãy xem file config sau:</p>
+            <pre class="prettyprint">
+<small># Khối thứ nhất</small>
+Host 192.168.1.2
+    Port 2222
+<small># Khối thứ hai</small>
+Host 192.168.1.3
+    Port 3333</pre>
+            <p>Khi bạn kết nối bằng lệnh:</p>
+            <pre class="prettyprint">ssh user@192.168.1.2</pre>
+            <p>Thì phần remoteserver phù hợp với khối thứ nhất, do đó nó sẽ áp dụng cấu hình thứ nhất - và kết nối bằng cổng
+            <code>2222</code>, tương tự nếu</p>
+            <pre class="prettyprint">ssh user@192.168.1.3</pre>
+            <p>Thì sẽ dùng cổng <code>3333</code> để kết nối</p>
+            <p>Thậm chí bạn đặt tên host bằng tên nào đó do bạn đặt, ví dụ:</p>
+            <pre class="prettyprint">
+Host ten-rat-dep
+    <small># cổng</small>
+    Port 22
+    <small># host thật</small>
+    HostName 192.168.1.52</pre>
+            <p>Thì lúc đó bạn gõ lệnh kết nối</p>
+            <pre>ssh testuser@ten-rat-dep</pre>
+            <p>Thì có nghĩa là thực hiện kết nối đến <code>192.168.1.52</code> với cổng <code>22</code> và user là <code>testuser</code>.
+            Thậm chỉ bạn có thể thiết lập User mặc định luôn, ví dụ:</p>
+            <pre class="prettyprint">
+Host ten-rat-dep
+    <small># User mặc định</small>
+    User testuser
+    <small># cổng</small>
+    Port 22
+    <small># host thật</small>
+    HostName 192.168.1.52</pre>
+            <p>Lúc đó, để thực hiện kết nối trên, đơn giản gõ</p>
+            <pre>ssh ten-rat-dep</pre>
+            <p>Ngoài <code>Port</code> <code>User</code> <code>HostName</code> tham khảo một số cấu hình nữa như:</p>
+            <ul>
+                <li><code>PreferredAuthentications publickey</code> bật chế độ xác thực bằng SSH Key trước</li>
+                <li><code>IdentityFile "path/../file_private_key"</code> vị trí file Private key</li>
+            </ul>
+            <p>Còn nhiều cấu hình khác, tuy nhiên các thiết lập trên đã đủ cho hầu hết các trường hợp, khối config cơ bản</p>
+<pre class="prettyprint">
+Host ten-rat-dep
+    Port 2222
+    HostName 192.168.1.52
+    User testuser
+    PreferredAuthentications publickey
+    IdentityFile "C:\MySSHKey\id_rsa"
+</pre>
+            <p><strong>Chú ý:</strong> trong file config này không thể thiết lập Password, nên nếu muốn gõ lệnh
+            kết nối mà không phải nhập  pass thì tham khảo
+                <a href="" target="_blank">Tạo Public/Private SSH Key và xác thực với authorized_keys</a></p>
+
+        </div>
+    </div>
+
+
+
+<?
+echo Common::createBottomIndex($index_article);
+?>
