@@ -1,0 +1,83 @@
+<?
+use XT\Core\System\KeyView;
+use XT\Core\Common\Common;
+/**
+ * @var PhpRenderer $this
+ */
+$index_article = Common::sendevent(KeyView::DYNAMIC_LOAD_PHTML,
+    ['file'=>'module/Application/view/dynamiccontent/SSH.php', 'view'=>$this])->last();
+
+$nav = $index_article->renderlist();
+
+Common::eventValue(KeyView::startNav(), $nav);
+
+
+$index_article = [
+    ['scp', '<strong>Lệnh scp</strong>'],
+    ['scpexample', '<strong>Ví dụ sử dụng scp</strong>'],
+];
+
+
+?>
+
+    <p>Phần này nói về xác thực bằng SSH Key, cách sử dụng chúng để nhanh chóng tạo kết nối an toàn, tiện dụng.</p>
+
+    <?=Common::createULlink($index_article, '#', 'class="list-group list-group-flush"', 'class="list-group-item p-0"'); ?>
+
+    <a id="<?=$index_article[0][0]?>" name="<?=$index_article[0][0]?>"></a>
+    <h2 class="display-4 font30 text-danger">Cú pháp sử dụng scp</h2>
+    <p><strong class="text-danger">SCP (secure copy - sao chép an toàn)</strong> là lệnh do OpenSSH Client cung cấp,
+    nó cho phép truyền tải file qua lại giữa máy local và remote (server), nó sử dụng giao thức <code>SSH</code>
+    để truyền file. Bạn sử dụng đến lệnh <code>scp</code> khi muốn:</p>
+    <ul>
+        <li>Copy file,thư mục, từ máy local lên server</li>
+        <li>Copy file,thư mục, từ máy server (remote) về local (client)</li>
+        <li>Copy file,thư mục, từ máy server (remote) này sang máy server (remote) khác</li>
+    </ul>
+    <p>Cú pháp  cơ bản như sau</p>
+    <pre class="prettyprint">scp [OPTION] [user_src@]src_host:]src_file [user@]desk_host:]des_file</pre>
+    <p>Trong đó:</p>
+    <ul>
+        <li><code>[user_src@]src_host:]src_file</code> là file, thư mục nguồn, ví dụ
+            <code>abcuser@192.168.1.55:/home/file1.txt</code> là file <code>/home/file1.txt</code>
+        tại máy <code>abcuser@192.168.1.55</code>, như dấu <code>:</code>, nếu là tại máy local thì
+        không cần chỉ ra user, host tức bỏ đoạn <code>abcuser@192.168.1.55:</code></li>
+        <li><code>[user@]desk_host:]des_file</code> đường dẫn file, thư mục đích muốn copy - ý nghĩa tương tự như trên</li>
+        <li><code>[OPTIONS]</code> các thiết lập cho thêm vào nếu muốn, như cho thêm tham số <code>-r</code>
+        để đệ quy copy cả thư mục, các file, thư mục con theo đường dẫn.</li>
+    </ul>
+
+    <a id="<?=$index_article[1][0]?>" name="<?=$index_article[1][0]?>"></a>
+    <h2 class="display-4 font30 text-danger">Ví dụ sử dụng scp</h2>
+    <h3 class="display-4 font20 text-success">download - copy một file từ server về local</h3>
+    <p>Ví dụ, có một file nằm trên server <code>192.168.1.99</code> ở đường dẫn <code>/home/data/1.txt</code>,
+    có tài khoản SSH với user là <code>root</code>. Giờ muốn copy file đó về lưu ở máy local với đường dẫn
+    là <code>/mycode/1.txt</code>, sử dụng <code>scp</code> như sau:</p>
+    <pre class="prettyprint">scp root@192.168.1.99:/home/data/1.txt /mycode/1.txt</pre>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-14.png" alt="">
+    <p>File 1.txt trên server đã copy về local ở đường dẫn <code>/mycode/1.txt</code></p>
+    <p>Tương tự, thử thực hiện copy file đó về máy local Windows, lưu vào <code>C:\data\1.txt</code></p>
+    <pre class="prettyprint">scp root@192.168.1.99:/home/data/1.txt "C:\data\1.txt"</pre>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-15.png" alt="">
+    <h3 class="display-4 font20 text-success">download - copy thư mục về máy local</h3>
+    <p>Ví dụ copy thư mục <code>/home/data</code> từ server về lưu vào <code>/mycode/data01</code></p>
+    <pre class="prettyprint">scp -r root@192.168.1.99:/home/data /mycode/data01</pre>
+    <img src="https://raw.githubusercontent.com/xuanthulabnet/learn-ssh/master/imgs/ssh-16.png" alt="">
+    <h3 class="display-4 font20 text-success">upload - copy file (thư mục) từ local lên server</h3>
+    <p>Tham số của <code>scp</code> chỉ ra nguồn và đích ngược lại với download là upload.
+    Ví dụ, upload file <code>/mycode/3.txt</code> lên server lưu ở <code>/home/data/3.txt</code>
+    </p>
+    <pre class="prettyprint">scp /mycode/3.txt root@192.168.1.99:/home/data/3.txt</pre>
+    <p>Hoặc Upload cả thư mục <code>/mycode/data/</code> lên server</p>
+    <pre class="prettyprint">scp -r /mycode/data root@192.168.1.99:/home/data</pre>
+
+
+
+
+
+
+
+
+<?
+echo Common::createBottomIndex($index_article);
+?>
